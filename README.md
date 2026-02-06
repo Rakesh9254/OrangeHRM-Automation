@@ -39,3 +39,21 @@ QA Automation Engineer | Passionate about Selenium, TestNG, and building clean a
 
 🔗 GitHub: @Rakesh9254
 Let me know — happy to help you structure this like a pro!
+
+---
+
+## Running Tests Locally
+
+Tests are skipped by default to avoid Selenium/browser failures in CI or restricted environments.
+
+Run the TestNG suite locally:
+
+```bash
+mvn -DskipTests=false test
+```
+
+If you want to force the TestNG suite file explicitly:
+
+```bash
+mvn -DskipTests=false -Dsurefire.suiteXmlFiles=testng.xml test
+```

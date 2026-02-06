@@ -3,8 +3,7 @@
 <suite name="Suite">
   <test thread-count="5" name="Test">
     <classes>
-      <class name=".OrangeHRM1"/>
-      <class name=".OrangeHRM"/>
+      <class name="OrangeHRM"/>
       <class name="Orangehrm.OrangeHRM"/>
       <class name="PageObjectModel.BaseTest"/>
       <class name="PageObjectModel.LoginTest"/>
