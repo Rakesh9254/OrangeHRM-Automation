@@ -8,7 +8,10 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.*;
 
 //import junit.framework.Assert;
@@ -21,8 +24,11 @@ public class OrangeHRM {
 	@BeforeTest
 	public void setup() {
 		System.out.println("Before Test executed");
-		// TODO Auto-generated method stub
-		driver = new ChromeDriver();
+		try {
+			driver = createChromeDriver();
+		} catch (RuntimeException ex) {
+			throw new SkipException("Skipping UI tests: unable to start ChromeDriver (" + ex.getMessage() + ")", ex);
+		}
 
 		// maximise windows
 		driver.manage().window().maximize();
@@ -32,6 +38,33 @@ public class OrangeHRM {
 
 		// timer i kept as 60 you can keep 40
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60)); // 60 seconds
+	}
+
+	private ChromeOptions buildChromeOptions() {
+		ChromeOptions options = new ChromeOptions();
+		boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
+		if (headless) {
+			options.addArguments("--headless=new");
+		}
+		options.addArguments("--no-sandbox");
+		options.addArguments("--disable-dev-shm-usage");
+		options.addArguments("--disable-gpu");
+		options.addArguments("--window-size=1920,1080");
+		return options;
+	}
+
+	private WebDriver createChromeDriver() {
+		ChromeOptions options = buildChromeOptions();
+		try {
+			return new ChromeDriver(options);
+		} catch (RuntimeException ex) {
+			if (ex.getMessage() != null && ex.getMessage().contains("Unable to find a free port")) {
+				int fallbackPort = Integer.parseInt(System.getProperty("chrome.driver.port", "9515"));
+				ChromeDriverService service = new ChromeDriverService.Builder().usingPort(fallbackPort).build();
+				return new ChromeDriver(service, options);
+			}
+			throw ex;
+		}
 	}
 
 	@Test(priority = 1, enabled = false)
@@ -404,8 +437,10 @@ public class OrangeHRM {
 		// logOut();
 
 		Thread.sleep(5000);// wait for 5 secs before quit
-		driver.close();
-		driver.quit();
+		if (driver != null) {
+			driver.close();
+			driver.quit();
+		}
 
 	}
 
